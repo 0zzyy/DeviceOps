@@ -46,6 +46,7 @@ targets:
       - target: DeviceOpsApp
 schemes:
   DeviceOpsApp:
+    shared: true
     build:
       targets:
         DeviceOpsApp: all
