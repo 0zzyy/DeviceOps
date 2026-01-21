@@ -1,6 +1,7 @@
 name: DeviceOps
 options:
   bundleIdPrefix: com.deviceops
+  projectFormat: "Xcode 15.4"
   deploymentTarget:
     iOS: 17.0
     macOS: 14.0
