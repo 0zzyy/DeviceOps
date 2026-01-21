@@ -1,0 +1,46 @@
+name: DeviceOps
+options:
+  bundleIdPrefix: com.deviceops
+  deploymentTarget:
+    iOS: 17.0
+    macOS: 14.0
+packages:
+  DeviceOps:
+    path: .
+targets:
+  DeviceOpsApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: App/DeviceOpsApp
+    settings:
+      base:
+        INFOPLIST_FILE: App/DeviceOpsApp/Info.plist
+    dependencies:
+      - package: DeviceOps
+        product: DeviceOpsCore
+  DeviceOpsApp-macOS:
+    type: application
+    platform: macOS
+    sources:
+      - path: App/DeviceOpsApp
+    settings:
+      base:
+        INFOPLIST_FILE: App/DeviceOpsApp/Info.plist
+    dependencies:
+      - package: DeviceOps
+        product: DeviceOpsCore
+  DeviceOpsAppTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: App/DeviceOpsAppTests
+    dependencies:
+      - target: DeviceOpsApp
+  DeviceOpsAppUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: App/DeviceOpsAppUITests
+    dependencies:
+      - target: DeviceOpsApp
