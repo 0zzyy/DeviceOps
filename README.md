@@ -1,6 +1,6 @@
 # DeviceOps
 
-DeviceOps is a portfolio-grade internal tools system that makes enterprise device management feel invisible—combining SwiftUI admin workflows, a Swift CLI, and a local mock server for end-to-end demos across MDM, ITAM, and software distribution.
+DeviceOps is a internal tools system that makes enterprise device management feel invisible. Combining SwiftUI admin workflows, a Swift CLI, and a local mock server for end-to-end demos across MDM, ITAM, and software distribution.
 
 ## Architecture
 
