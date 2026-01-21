@@ -1,0 +1,312 @@
+openapi: 3.0.3
+info:
+  title: DeviceOps Mock API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+paths:
+  /v1/devices:
+    get:
+      summary: List devices
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - in: query
+          name: q
+          schema:
+            type: string
+        - in: query
+          name: platform
+          schema:
+            type: string
+            enum: [macOS, iOS, iPadOS, tvOS, visionOS]
+        - in: query
+          name: compliance
+          schema:
+            type: string
+            enum: [compliant, noncompliant, unknown]
+      responses:
+        '200':
+          description: A paged list of devices
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DevicePage'
+  /v1/devices/{id}:
+    get:
+      summary: Get device detail
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Device detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceDetail'
+        '404':
+          description: Not found
+  /v1/devices/{id}/commands:
+    post:
+      summary: Send device command
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommandRequest'
+      responses:
+        '202':
+          description: Command accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandJob'
+  /v1/commands/{jobId}:
+    get:
+      summary: Get command job status
+      parameters:
+        - in: path
+          name: jobId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Job status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandJob'
+  /v1/assets:
+    get:
+      summary: List assets
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - in: query
+          name: q
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A paged list of assets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetPage'
+  /v1/software:
+    get:
+      summary: List software
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - in: query
+          name: platform
+          schema:
+            type: string
+            enum: [macOS, iOS, iPadOS, tvOS, visionOS]
+      responses:
+        '200':
+          description: A paged list of software
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SoftwarePage'
+  /v1/software/{id}/install:
+    post:
+      summary: Request software install
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Install job created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandJob'
+components:
+  schemas:
+    DevicePage:
+      type: object
+      required: [page, totalPages, items]
+      properties:
+        page:
+          type: integer
+        totalPages:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeviceSummary'
+    DeviceSummary:
+      type: object
+      required: [id, name, platform, osVersion, compliance, lastCheckIn]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        platform:
+          type: string
+        osVersion:
+          type: string
+        compliance:
+          type: string
+        lastCheckIn:
+          type: string
+          format: date-time
+    DeviceDetail:
+      type: object
+      required: [id, name, platform, osVersion, serialNumber, lastCheckIn, complianceSignals, installedApps]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        platform:
+          type: string
+        osVersion:
+          type: string
+        serialNumber:
+          type: string
+        lastCheckIn:
+          type: string
+          format: date-time
+        complianceSignals:
+          $ref: '#/components/schemas/ComplianceSignals'
+        installedApps:
+          type: array
+          items:
+            $ref: '#/components/schemas/InstalledApp'
+    ComplianceSignals:
+      type: object
+      required: [fileVaultEnabled, passcodeEnabled, edrPresent, riskyAppsCount]
+      properties:
+        fileVaultEnabled:
+          type: boolean
+        passcodeEnabled:
+          type: boolean
+        edrPresent:
+          type: boolean
+        riskyAppsCount:
+          type: integer
+    InstalledApp:
+      type: object
+      required: [id, name, version]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        version:
+          type: string
+    CommandRequest:
+      type: object
+      required: [commandType]
+      properties:
+        commandType:
+          type: string
+          enum: [queryDeviceInformation, querySecurityInfo, queryInstalledApps, installApplication]
+        payload:
+          type: object
+          additionalProperties: true
+    CommandJob:
+      type: object
+      required: [id, status, commandType, createdAt]
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum: [queued, in_progress, succeeded, failed]
+        commandType:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+        failureReason:
+          type: string
+    AssetPage:
+      type: object
+      required: [page, totalPages, items]
+      properties:
+        page:
+          type: integer
+        totalPages:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetRecord'
+    AssetRecord:
+      type: object
+      required: [id, assetTag, serialNumber, assignedUser, costCenter, lifecycleState]
+      properties:
+        id:
+          type: string
+        assetTag:
+          type: string
+        serialNumber:
+          type: string
+        assignedUser:
+          type: string
+        costCenter:
+          type: string
+        lifecycleState:
+          type: string
+    SoftwarePage:
+      type: object
+      required: [page, totalPages, items]
+      properties:
+        page:
+          type: integer
+        totalPages:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SoftwareItem'
+    SoftwareItem:
+      type: object
+      required: [id, name, version, platform, required]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        version:
+          type: string
+        platform:
+          type: string
+        required:
+          type: boolean
