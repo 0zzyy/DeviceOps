@@ -1,0 +1,9 @@
+generate:
+  - type: client
+    input: ./openapi.yaml
+    output: ./Shared/Sources/DeviceOpsAPI/Generated
+    config:
+      accessModifier: public
+      moduleName: DeviceOpsAPI
+      useOpenAPITypes: true
+      library: urlsession
